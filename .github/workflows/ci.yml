@@ -1,0 +1,74 @@
+
+name: Nuvora CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-check:
+    name: Repository Structure Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify required files
+        shell: bash
+        run: |
+          set -e
+
+          files=(
+            "README.md"
+            "LICENSE"
+            "CONTRIBUTING.md"
+            "SECURITY.md"
+            ".gitignore"
+            "docs/decisions/0001-architecture.md"
+          )
+
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Missing required file: $file"
+              exit 1
+            fi
+
+            echo "Found: $file"
+          done
+
+      - name: Verify required directories
+        shell: bash
+        run: |
+          set -e
+
+          directories=(
+            "apps/web"
+            "apps/api"
+            "docs/architecture"
+            "docs/security"
+            "docs/decisions"
+            "infrastructure/terraform"
+            "scripts"
+            "tests"
+          )
+
+          for directory in "${directories[@]}"; do
+            if [ ! -d "$directory" ]; then
+              echo "Missing required directory: $directory"
+              exit 1
+            fi
+
+            echo "Found: $directory"
+          done
+
+      - name: Validate repository
+        run: echo "Nuvora repository structure validation passed!"
